@@ -1,0 +1,142 @@
+{% extends 'someap/base.html' %}
+{% block content %}
+
+<div class="level mb-4">
+  <div class="level-left">
+    <h1 class="title is-3 level-item"><span class="icon"><i class="fas fa-boxes"></i></span> Products</h1>
+  </div>
+  <div class="level-right">
+    <a href="{% url 'someap:product_add' %}" class="button is-primary level-item">
+      <span class="icon"><i class="fas fa-plus"></i></span><span>Add Product</span>
+    </a>
+  </div>
+</div>
+
+<!-- Search & Filter -->
+<div class="box mb-4">
+  <form method="get" action="">
+    <div class="columns is-vcentered">
+      <div class="column is-5">
+        <div class="field">
+          <div class="control has-icons-left">
+            <input class="input" type="text" name="search" placeholder="Search products, brand, barcode..." value="{{ search }}">
+            <span class="icon is-left"><i class="fas fa-search"></i></span>
+          </div>
+        </div>
+      </div>
+      <div class="column is-4">
+        <div class="field">
+          <div class="control has-icons-left">
+            <div class="select is-fullwidth">
+              <select name="category">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <span class="icon is-left"><i class="fas fa-tags"></i></span>
+          </div>
+        </div>
+      </div>
+      <div class="column is-3">
+        <button class="button is-primary is-fullwidth" type="submit">
+          <span class="icon"><i class="fas fa-filter"></i></span><span>Filter</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Product Table -->
+<div class="box" style="overflow-x:auto;">
+  <table class="table is-fullwidth is-striped is-hoverable">
+    <thead>
+      <tr style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;">
+        <th style="color:white;">Image</th>
+        <th style="color:white;">Product</th>
+        <th style="color:white;">Category</th>
+        <th style="color:white;">Brand</th>
+        <th style="color:white;">Price</th>
+        <th style="color:white;">Quantity</th>
+        <th style="color:white;">Expiry</th>
+        <th style="color:white;">Status</th>
+        <th style="color:white;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in products %}
+      <tr>
+        <td>
+          {% if p.product_image %}
+          <figure class="image is-48x48">
+            <img src="{{ p.product_image.url }}" alt="{{ p.product_name }}" style="object-fit:cover;border-radius:6px;width:48px;height:48px;">
+          </figure>
+          {% else %}
+          <span class="icon has-text-grey-lighter"><i class="fas fa-box fa-2x"></i></span>
+          {% endif %}
+        </td>
+        <td><a href="{% url 'someap:product_detail' p.pk %}" class="has-text-weight-semibold">{{ p.product_name }}</a></td>
+        <td><span class="tag is-info is-light">{{ p.category }}</span></td>
+        <td>{{ p.brand|default:"-" }}</td>
+        <td>₹{{ p.price }}</td>
+        <td>
+          {% if p.is_low_stock %}
+          <span class="tag is-warning">{{ p.quantity }} ⚠</span>
+          {% else %}
+          <span class="tag is-success is-light">{{ p.quantity }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if p.expiry_date %}
+          <span class="tag {% if p.expiry_status == 'expired' %}is-danger{% elif p.expiry_status == 'expiring_soon' %}is-warning{% else %}is-success is-light{% endif %}">
+            {{ p.expiry_date }}
+          </span>
+          {% else %}-{% endif %}
+        </td>
+        <td>
+          {% if p.expiry_status == 'expired' %}
+          <span class="tag is-danger">Expired</span>
+          {% elif p.expiry_status == 'expiring_soon' %}
+          <span class="tag is-warning">Expiring Soon</span>
+          {% elif p.expiry_status == 'safe' %}
+          <span class="tag is-success">Safe</span>
+          {% else %}-{% endif %}
+        </td>
+        <td>
+          <div class="buttons are-small">
+            <a href="{% url 'someap:product_detail' p.pk %}" class="button is-info is-light" title="View"><i class="fas fa-eye"></i></a>
+            <a href="{% url 'someap:product_edit' p.pk %}" class="button is-warning is-light" title="Edit"><i class="fas fa-edit"></i></a>
+            <a href="{% url 'someap:add_stock' p.pk %}" class="button is-success is-light" title="Add Stock"><i class="fas fa-plus"></i></a>
+            <a href="{% url 'someap:subtract_stock' p.pk %}" class="button is-danger is-light" title="Subtract Stock"><i class="fas fa-minus"></i></a>
+            <a href="{% url 'someap:product_delete' p.pk %}" class="button is-danger" title="Delete"><i class="fas fa-trash"></i></a>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="9" class="has-text-centered has-text-grey py-6">No products found. <a href="{% url 'someap:product_add' %}">Add one!</a></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav class="pagination is-centered mt-4" role="navigation">
+  {% if page_obj.has_previous %}
+  <a class="pagination-previous" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Previous</a>
+  {% endif %}
+  {% if page_obj.has_next %}
+  <a class="pagination-next" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">Next</a>
+  {% endif %}
+  <ul class="pagination-list">
+    {% for i in paginator.page_range %}
+    <li>
+      <a class="pagination-link {% if i == page_obj.number %}is-current{% endif %}" href="?page={{ i }}{% if search %}&search={{ search }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ i }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

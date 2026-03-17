@@ -1,0 +1,159 @@
+{% extends 'someap/base.html' %}
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="mb-5">
+  <h1 class="title is-3"><span class="icon"><i class="fas fa-chart-line"></i></span> Dashboard</h1>
+  <p class="subtitle">Smart Shop Inventory Overview</p>
+</div>
+
+<!-- Stat Cards -->
+<div class="columns is-multiline mb-5">
+  <div class="column is-3-desktop is-6-tablet">
+    <div class="box has-text-centered" style="border-top:4px solid #667eea;">
+      <p class="heading">Total Products</p>
+      <p class="title is-2 has-text-primary">{{ total_products }}</p>
+      <i class="fas fa-boxes fa-2x has-text-grey-light"></i>
+    </div>
+  </div>
+  <div class="column is-3-desktop is-6-tablet">
+    <div class="box has-text-centered" style="border-top:4px solid #f39c12;">
+      <p class="heading">Low Stock</p>
+      <p class="title is-2 has-text-warning">{{ low_stock_count }}</p>
+      <i class="fas fa-exclamation-triangle fa-2x has-text-grey-light"></i>
+    </div>
+  </div>
+  <div class="column is-3-desktop is-6-tablet">
+    <div class="box has-text-centered" style="border-top:4px solid #e74c3c;">
+      <p class="heading">Expired Items</p>
+      <p class="title is-2 has-text-danger">{{ expired_count }}</p>
+      <i class="fas fa-times-circle fa-2x has-text-grey-light"></i>
+    </div>
+  </div>
+  <div class="column is-3-desktop is-6-tablet">
+    <div class="box has-text-centered" style="border-top:4px solid #e67e22;">
+      <p class="heading">Expiring Soon</p>
+      <p class="title is-2" style="color:#e67e22;">{{ expiring_soon_count }}</p>
+      <i class="fas fa-clock fa-2x has-text-grey-light"></i>
+    </div>
+  </div>
+</div>
+
+<!-- Alerts -->
+{% if expired_products %}
+<div class="notification is-danger mb-4">
+  <strong><i class="fas fa-skull-crossbones"></i> Expired Products ({{ expired_count }})</strong>
+  <ul class="mt-2">
+    {% for p in expired_products|slice:":5" %}
+    <li><a href="{% url 'someap:product_detail' p.pk %}">{{ p.product_name }}</a> — expired {{ p.expiry_date }}</li>
+    {% endfor %}
+    {% if expired_count > 5 %}<li><em>...and {{ expired_count|add:"-5" }} more</em></li>{% endif %}
+  </ul>
+</div>
+{% endif %}
+
+{% if expiring_soon_products %}
+<div class="notification is-warning mb-4">
+  <strong><i class="fas fa-clock"></i> Expiring Within 7 Days ({{ expiring_soon_count }})</strong>
+  <ul class="mt-2">
+    {% for p in expiring_soon_products|slice:":5" %}
+    <li><a href="{% url 'someap:product_detail' p.pk %}">{{ p.product_name }}</a> — expires {{ p.expiry_date }}</li>
+    {% endfor %}
+    {% if expiring_soon_count > 5 %}<li><em>...and {{ expiring_soon_count|add:"-5" }} more</em></li>{% endif %}
+  </ul>
+</div>
+{% endif %}
+
+<!-- Chart + Low Stock -->
+<div class="columns">
+  <div class="column is-8">
+    <div class="box">
+      <h2 class="title is-5 mb-4"><i class="fas fa-chart-bar"></i> Stock by Category</h2>
+      <canvas id="categoryChart" height="120"></canvas>
+    </div>
+  </div>
+  <div class="column is-4">
+    <div class="box" style="height:100%;">
+      <h2 class="title is-5 mb-4"><i class="fas fa-exclamation-triangle has-text-warning"></i> Low Stock Items</h2>
+      {% if low_stock_products %}
+        {% for p in low_stock_products|slice:":8" %}
+        <div class="level is-mobile mb-2">
+          <div class="level-left">
+            <a href="{% url 'someap:product_detail' p.pk %}" class="level-item">{{ p.product_name }}</a>
+          </div>
+          <div class="level-right">
+            <span class="tag is-warning level-item">{{ p.quantity }} left</span>
+          </div>
+        </div>
+        {% endfor %}
+        {% if low_stock_count > 8 %}
+        <p class="has-text-grey is-size-7 mt-2">...and {{ low_stock_count|add:"-8" }} more</p>
+        {% endif %}
+      {% else %}
+        <p class="has-text-grey">All products are well stocked! 🎉</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Recently Added -->
+<div class="box mt-5">
+  <h2 class="title is-5 mb-4"><i class="fas fa-clock"></i> Recently Added Products</h2>
+  <div class="columns is-multiline">
+    {% for p in recent_products %}
+    <div class="column is-4-desktop is-6-tablet">
+      <div class="box" style="border-left:4px solid #667eea;">
+        <div class="level is-mobile">
+          <div class="level-left">
+            {% if p.product_image %}
+            <figure class="level-item image is-48x48 mr-3">
+              <img src="{{ p.product_image.url }}" alt="{{ p.product_name }}" style="border-radius:8px;object-fit:cover;width:48px;height:48px;">
+            </figure>
+            {% else %}
+            <span class="level-item icon is-large has-text-grey-lighter mr-2"><i class="fas fa-box fa-2x"></i></span>
+            {% endif %}
+            <div class="level-item">
+              <p class="has-text-weight-bold">{{ p.product_name }}</p>
+            </div>
+          </div>
+          <div class="level-right">
+            <span class="tag
+              {% if p.expiry_status == 'expired' %}is-danger
+              {% elif p.expiry_status == 'expiring_soon' %}is-warning
+              {% else %}is-success{% endif %}">
+              {{ p.expiry_status|title }}
+            </span>
+          </div>
+        </div>
+        <p class="is-size-7 has-text-grey">{{ p.category }} &bull; ₹{{ p.price }} &bull; Qty: {{ p.quantity }}</p>
+        <a href="{% url 'someap:product_detail' p.pk %}" class="button is-small is-primary mt-2">View Details</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+const ctx = document.getElementById('categoryChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: {{ chart_labels|safe }},
+    datasets: [{
+      label: 'Total Quantity',
+      data: {{ chart_data|safe }},
+      backgroundColor: [
+        '#667eea','#764ba2','#f093fb','#f5576c','#4facfe','#00f2fe',
+        '#43e97b','#38f9d7','#fa709a','#fee140'
+      ],
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true } }
+  }
+});
+</script>
+{% endblock %}

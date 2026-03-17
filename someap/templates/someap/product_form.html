@@ -1,0 +1,487 @@
+{% extends 'someap/base.html' %}
+
+{% block content %}
+  <style>
+    .page-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      color: white;
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .form-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section-box {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid #667eea;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      color: #667eea;
+      font-size: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .label {
+      color: #2c3e50;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .label i {
+      color: #667eea;
+      font-size: 1rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="email"],
+    input[type="password"],
+    input[type="file"],
+    select,
+    textarea {
+      border: 2px solid #ecf0f1;
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-size: 1rem;
+      width: 100%;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="date"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="file"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      outline: none;
+    }
+
+    input[type="file"] {
+      border: 2px dashed #bdc3c7;
+      padding: 1rem;
+      cursor: pointer;
+    }
+
+    input[type="file"]:hover {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.02);
+    }
+
+    textarea {
+      font-size: 0.95rem;
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .help {
+      color: #7f8c8d;
+      font-size: 0.85rem;
+      margin-top: 0.4rem;
+    }
+
+    .help.is-danger {
+      color: #e74c3c;
+      font-weight: 600;
+      padding: 0.4rem;
+      background: #fadbd8;
+      border-radius: 4px;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .field {
+      margin-bottom: 1.5rem;
+    }
+
+    .image-preview {
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .image-preview img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-preview-label {
+      color: #95a5a6;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .form-row.full {
+      grid-template-columns: 1fr;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .submit-btn {
+      flex: 1;
+      padding: 0.9rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .submit-btn.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .submit-btn.primary:hover {
+      box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .submit-btn.secondary {
+      background: #ecf0f1;
+      color: #2c3e50;
+      border: 2px solid #bdc3c7;
+    }
+
+    .submit-btn.secondary:hover {
+      background: #d5dbdb;
+      border-color: #95a5a6;
+    }
+
+    .error-box {
+      background: linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(230, 126, 34, 0.1) 100%);
+      border-left: 5px solid #e74c3c;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .error-box h4 {
+      color: #c0392b;
+      margin: 0 0 0.5rem 0;
+      font-weight: 700;
+    }
+
+    .error-box ul {
+      margin: 0;
+      color: #a93226;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .submit-btn {
+        width: 100%;
+      }
+    }
+  </style>
+
+  <div class="page-header">
+    <h1>{% if object %}<i class="fas fa-edit"></i> Edit Product{% else %}<i class="fas fa-plus-circle"></i> Add New Product{% endif %}</h1>
+  </div>
+
+  <div class="form-container">
+    <!-- Error Summary -->
+    {% if form.non_field_errors %}
+      <div class="error-box">
+        <h4><i class="fas fa-exclamation-circle"></i> Please fix the following errors:</h4>
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Basic Information Section -->
+      <div class="section-box">
+        <div class="section-title">
+          <i class="fas fa-box"></i> Basic Information
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            {% with field=form.product_name %}
+              <label class="label" for="{{ field.id_for_label }}">
+                <i class="fas fa-tag"></i> {{ field.label }}
+              </label>
+              {{ field }}
+              {% for error in field.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+
+          <div class="form-group">
+            {% with field=form.category %}
+              <label class="label" for="{{ field.id_for_label }}">
+                <i class="fas fa-folder"></i> {{ field.label }}
+              </label>
+              {{ field }}
+              {% for error in field.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            {% with field=form.brand %}
+              <label class="label" for="{{ field.id_for_label }}">
+                <i class="fas fa-trademark"></i> {{ field.label }}
+              </label>
+              {{ field }}
+              {% for error in field.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+
+          <div class="form-group">
+            {% with field=form.barcode %}
+              <label class="label" for="{{ field.id_for_label }}">
+                <i class="fas fa-barcode"></i> {{ field.label }}
+              </label>
+              {{ field }}
+              {% for error in field.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            {% with field=form.weight_or_volume %}
+              <label class="label" for="{{ field.id_for_label }}">
+                <i class="fas fa-weight"></i> {{ field.label }}
+              </label>
+              {{ field }}
+              {% for error in field.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+        </div>
+
+        <div class="form-row form-row.full">
+          <div class="form-group">
+            {% with field=form.description %}
+              <label class="label" for="{{ field.id_for_label }}">
+                <i class="fas fa-align-left"></i> {{ field.label }}
+              </label>
+              {{ field }}
+              {% for error in field.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing & Stock Section -->
+      <div class="section-box">
+        <div class="section-title">
+          <i class="fas fa-money-bill-wave"></i> Pricing & Stock Management
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            {% with field=form.price %}
+              <label class="label" for="{{ field.id_for_label }}">
+                <i class="fas fa-rupee-sign"></i> {{ field.label }}
+              </label>
+              {{ field }}
+              {% for error in field.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+
+          <div class="form-group">
+            {% with field=form.quantity %}
+              <label class="label" for="{{ field.id_for_label }}">
+                <i class="fas fa-cube"></i> {{ field.label }}
+              </label>
+              {{ field }}
+              {% for error in field.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            {% with field=form.low_stock_limit %}
+              <label class="label" for="{{ field.id_for_label }}">
+                <i class="fas fa-exclamation-triangle"></i> {{ field.label }}
+              </label>
+              {{ field }}
+              <p class="help">Receive alerts when stock falls below this level</p>
+              {% for error in field.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Dates Section -->
+      <div class="section-box">
+        <div class="section-title">
+          <i class="fas fa-calendar"></i> Manufacture & Expiry Dates
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            {% with field=form.manufacture_date %}
+              <label class="label" for="{{ field.id_for_label }}">
+                <i class="fas fa-calendar-plus"></i> {{ field.label }}
+              </label>
+              {{ field }}
+              {% for error in field.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+
+          <div class="form-group">
+            {% with field=form.expiry_date %}
+              <label class="label" for="{{ field.id_for_label }}">
+                <i class="fas fa-calendar-times"></i> {{ field.label }}
+              </label>
+              {{ field }}
+              {% for error in field.errors %}
+                <p class="help is-danger">{{ error }}</p>
+              {% endfor %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Image Section -->
+      <div class="section-box">
+        <div class="section-title">
+          <i class="fas fa-image"></i> Product Image
+        </div>
+
+        {% if object and object.product_image %}
+          <div class="image-preview">
+            <img src="{{ object.product_image.url }}" alt="{{ object.product_name }}" />
+            <div class="image-preview-label">Current Product Image</div>
+          </div>
+        {% endif %}
+
+        <div class="form-group">
+          {% with field=form.product_image %}
+            <label class="label" for="{{ field.id_for_label }}">
+              <i class="fas fa-upload"></i> {{ field.label }}
+            </label>
+            {{ field }}
+            <p class="help"><i class="fas fa-info-circle"></i> Maximum 5MB. Supported formats: JPG, PNG, GIF, WebP</p>
+            {% for error in field.errors %}
+              <p class="help is-danger">{{ error }}</p>
+            {% endfor %}
+          {% endwith %}
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="button-group">
+        <button class="submit-btn primary" type="submit">
+          <i class="fas fa-save"></i>
+          {% if object %}Update Product{% else %}Add Product{% endif %}
+        </button>
+        <a class="submit-btn secondary" href="{% url 'someap:product_list' %}">
+          <i class="fas fa-arrow-left"></i> Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Add animation on load
+    document.addEventListener('DOMContentLoaded', function() {
+      const boxes = document.querySelectorAll('.section-box');
+      boxes.forEach((box, index) => {
+        box.style.opacity = '0';
+        box.style.animation = `slideUp 0.5s ease forwards ${index * 0.1}s`;
+      });
+    });
+  </script>
+
+  <style>
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+{% endblock %}

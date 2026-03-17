@@ -1,0 +1,59 @@
+{% extends 'someap/base.html' %}
+{% block content %}
+
+<div class="columns is-centered">
+  <div class="column is-6">
+    <div class="box">
+      <h1 class="title is-4">
+        {% if action == 'Add' %}
+        <span class="icon has-text-success"><i class="fas fa-plus-circle"></i></span> Add Stock
+        {% else %}
+        <span class="icon has-text-danger"><i class="fas fa-minus-circle"></i></span> Subtract Stock
+        {% endif %}
+      </h1>
+      <p class="subtitle">Product: <strong>{{ product.product_name }}</strong></p>
+      <p class="mb-4">Current Quantity: 
+        <span class="tag is-large {% if product.is_low_stock %}is-warning{% else %}is-success{% endif %}">
+          {{ product.quantity }}
+        </span>
+      </p>
+
+      <form method="post" action="">
+        {% csrf_token %}
+        {% for field in form %}
+        {% if field.widget_type != 'hidden' %}
+        <div class="field">
+          <label class="label">{{ field.label }}</label>
+          <div class="control">{{ field }}</div>
+          {% if field.errors %}
+          {% for error in field.errors %}
+          <p class="help is-danger">{{ error }}</p>
+          {% endfor %}
+          {% endif %}
+        </div>
+        {% else %}
+        {{ field }}
+        {% endif %}
+        {% endfor %}
+
+        {% if form.non_field_errors %}
+        <div class="notification is-danger">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="buttons mt-4">
+          <button type="submit" class="button {% if action == 'Add' %}is-success{% else %}is-danger{% endif %} is-medium">
+            <span class="icon">
+              {% if action == 'Add' %}<i class="fas fa-plus"></i>{% else %}<i class="fas fa-minus"></i>{% endif %}
+            </span>
+            <span>{{ action }} Stock</span>
+          </button>
+          <a href="{% url 'someap:product_detail' product.pk %}" class="button is-light is-medium">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

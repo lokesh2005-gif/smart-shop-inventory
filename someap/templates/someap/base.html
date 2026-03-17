@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Shop Inventory</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .navbar-brand a {
+      color: white !important;
+      font-weight: 800;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .navbar-item {
+      color: rgba(255, 255, 255, 0.8) !important;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .navbar-item:hover {
+      color: white !important;
+      background: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .navbar-item.is-active {
+      color: white !important;
+      background: rgba(255, 255, 255, 0.2) !important;
+      border-bottom: 3px solid white;
+    }
+
+    .navbar-item .icon {
+      margin-right: 0.5rem;
+    }
+
+    .button.is-light {
+      background: white !important;
+      color: #667eea !important;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      border: none;
+    }
+
+    .button.is-light:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .button.is-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      color: white !important;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      border: none;
+    }
+
+    .button.is-primary:hover {
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .navbar-item.has-dropdown-up .dropdown-menu {
+      top: auto;
+      bottom: calc(100% + 0.384615em);
+    }
+
+    .notification {
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .notification.is-success {
+      background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(39, 174, 96, 0.1) 100%);
+      border-left: 5px solid #2ecc71;
+    }
+
+    .notification.is-danger {
+      background: linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(230, 126, 34, 0.1) 100%);
+      border-left: 5px solid #e74c3c;
+    }
+
+    .notification.is-info {
+      background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(41, 128, 185, 0.1) 100%);
+      border-left: 5px solid #3498db;
+    }
+
+    .notification.is-warning {
+      background: linear-gradient(135deg, rgba(241, 196, 15, 0.1) 0%, rgba(230, 126, 34, 0.1) 100%);
+      border-left: 5px solid #f39c12;
+    }
+
+    .section {
+      background: transparent;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .notification {
+      animation: slideDown 0.4s ease;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="{% url 'someap:dashboard' %}">
+        <i class="fas fa-shopping-cart"></i>
+        <span style="font-weight: bold; font-size: 1.1rem;">Smart Shop Inventory</span>
+      </a>
+      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item {% if request.resolver_match.url_name == 'dashboard' %}is-active{% endif %}" href="{% url 'someap:dashboard' %}">
+          <span class="icon"><i class="fas fa-chart-line"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a class="navbar-item {% if request.resolver_match.url_name in 'product_list product_add product_edit product_delete' %}is-active{% endif %}" href="{% url 'someap:product_list' %}">
+          <span class="icon"><i class="fas fa-boxes"></i></span>
+          <span>Products</span>
+        </a>
+        <a class="navbar-item {% if request.resolver_match.url_name in 'category_list category_add category_edit category_delete' %}is-active{% endif %}" href="{% url 'someap:category_list' %}">
+          <span class="icon"><i class="fas fa-tags"></i></span>
+          <span>Categories</span>
+        </a>
+        <a class="navbar-item {% if request.resolver_match.url_name == 'low_stock_report' %}is-active{% endif %}" href="{% url 'someap:low_stock_report' %}">
+          <span class="icon"><i class="fas fa-bell"></i></span>
+          <span>Low Stock</span>
+        </a>
+      </div>
+
+      <div class="navbar-end">
+        {% if request.user.is_authenticated %}
+          <div class="navbar-item">
+            <span style="color: white; margin-right: 1rem;">
+              <i class="fas fa-user-check" style="margin-right: 0.5rem;"></i>
+              {{ request.user.get_username }}
+            </span>
+          </div>
+          <div class="navbar-item">
+            <div class="buttons">
+              <a class="button is-light" href="{% url 'someap:logout' %}">
+                <span class="icon is-left"><i class="fas fa-sign-out-alt"></i></span>
+                <span>Logout</span>
+              </a>
+            </div>
+          </div>
+        {% else %}
+          <div class="navbar-item">
+            <div class="buttons">
+              <a class="button is-primary" href="{% url 'someap:signup' %}">
+                <span class="icon is-left"><i class="fas fa-user-plus"></i></span>
+                <span>Sign up</span>
+              </a>
+              <a class="button is-light" href="{% url 'someap:login' %}">
+                <span class="icon is-left"><i class="fas fa-sign-in-alt"></i></span>
+                <span>Log in</span>
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <section class="section">
+    <div class="container">
+      {% if messages %}
+        <div class="mb-4">
+          {% for message in messages %}
+            <div class="notification {% if message.tags %}is-{{ message.tags }}{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+      $navbarBurgers.forEach( el => {
+        el.addEventListener('click', () => {
+          const target = el.dataset.target;
+          const $target = document.getElementById(target);
+          el.classList.toggle('is-active');
+          $target.classList.toggle('is-active');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

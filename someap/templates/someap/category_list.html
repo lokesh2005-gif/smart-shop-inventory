@@ -1,0 +1,59 @@
+{% extends 'someap/base.html' %}
+
+{% block content %}
+  <div class="level">
+    <div class="level-left">
+      <div class="level-item">
+        <h1 class="title">Categories</h1>
+      </div>
+    </div>
+    <div class="level-right">
+      <div class="level-item">
+        <a class="button is-primary" href="{% url 'someap:category_add' %}">
+          <span class="icon"><i class="fas fa-plus"></i></span>
+          <span>Add Category</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="box">
+    {% if categories %}
+      <div class="table-container">
+        <table class="table is-fullwidth is-striped is-hoverable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Products</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for category in categories %}
+              <tr>
+                <td>{{ category.name }}</td>
+                <td>{{ category.description|truncatechars:50 }}</td>
+                <td>{{ category.products.count }}</td>
+                <td>
+                  <div class="buttons are-small">
+                    <a class="button is-info" href="{% url 'someap:category_edit' category.pk %}">
+                      <span class="icon"><i class="fas fa-edit"></i></span>
+                    </a>
+                    <a class="button is-danger" href="{% url 'someap:category_delete' category.pk %}">
+                      <span class="icon"><i class="fas fa-trash"></i></span>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="notification is-info">
+        No categories yet. <a href="{% url 'someap:category_add' %}">Add your first category</a>.
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

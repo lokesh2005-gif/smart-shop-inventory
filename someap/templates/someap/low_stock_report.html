@@ -1,0 +1,48 @@
+{% extends 'someap/base.html' %}
+
+{% block content %}
+  <h1 class="title">Low Stock Report</h1>
+
+  <div class="box">
+    {% if products %}
+      <p class="mb-4">The following products are at or below their low stock limit and need restocking.</p>
+
+      <div class="table-container">
+        <table class="table is-fullwidth is-striped is-hoverable">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Current Qty</th>
+              <th>Low Stock Limit</th>
+              <th>Price</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+              <tr class="has-background-danger-light">
+                <td>{{ product.name }}</td>
+                <td>{{ product.category }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>{{ product.low_stock_limit }}</td>
+                <td>${{ product.price }}</td>
+                <td>
+                  <a class="button is-small is-primary" href="{% url 'someap:product_edit' product.pk %}">
+                    <span class="icon"><i class="fas fa-edit"></i></span>
+                    <span>Update Stock</span>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="notification is-success">
+        <span class="icon"><i class="fas fa-check"></i></span>
+        All products are sufficiently stocked!
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
